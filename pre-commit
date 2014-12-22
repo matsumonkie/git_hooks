@@ -1,0 +1,17 @@
+#!/usr/bin/ruby
+
+def string_in_files(files, string)
+  files.each do |file|
+    nocommit = %x{ ag "#{string}" "#{file}" }
+    unless nocommit.empty?
+      puts "Error: You have #{string} in your code."
+      puts "In file [#{file}]"
+      puts nocommit
+      exit 1
+    end
+  end
+end
+
+staged_files = %x{ git diff --name-only --staged }.split(' ')
+forbidden_words = ["NOCOMMIT", "puts", "console.log"]
+forbidden_words.each { |forbidden_word| string_in_files(staged_files, forbidden_word) }

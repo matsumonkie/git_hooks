@@ -1,0 +1,19 @@
+#!/bin/zsh
+#
+BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
+
+if [ -n "$BRANCH_NAME" ] && [ "$BRANCH_NAME" != "dev" ]; then
+    COMMIT_MSG=$(cat $1)
+
+    if [[ $COMMIT_MSG == "fixup"* ]]
+    then
+        echo "fixup! $BRANCH_NAME ${COMMIT_MSG:6}" > $1
+        return;
+    fi
+
+    if [[ $COMMIT_MSG != $BRANCH_NAME* ]] && [[ $BRANCH_NAME != "HEAD"* ]]
+    then
+        echo "jira"
+        echo "$BRANCH_NAME $(cat $1)" > $1
+    fi
+fi
