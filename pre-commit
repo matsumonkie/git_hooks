@@ -12,6 +12,8 @@ def string_in_files(files, string)
   end
 end
 
+git_root = %x{ git rev-parse --show-toplevel }.gsub("\n", "")
 staged_files = %x{ git diff --name-only --staged }.split(' ')
+staged_files = staged_files.map { |file| File.join(git_root, file) }
 forbidden_words = ["NOCOMMIT", "puts", "console.log"]
 forbidden_words.each { |forbidden_word| string_in_files(staged_files, forbidden_word) }
