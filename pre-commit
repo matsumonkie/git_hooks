@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 
 def string_in_files(files, string)
   files.each do |file|
