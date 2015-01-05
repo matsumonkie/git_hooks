@@ -1,19 +1,18 @@
-#!/bin/zsh
-#
-BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
+#!/usr/bin/env ruby
 
-if [ -n "$BRANCH_NAME" ] && [ "$BRANCH_NAME" != "dev" ]; then
-    COMMIT_MSG=$(cat $1)
+UNCONCERNED_BRANCHES = ["dev", "master"]
+current_branch=%x{ git rev-parse --abbrev-ref HEAD }.strip
+commit_file_msg = ARGV[0].strip
+commit_msg = %x{ cat #{commit_file_msg} }.strip
 
-    if [[ $COMMIT_MSG == "fixup"* ]]
-    then
-        echo "fixup! $BRANCH_NAME ${COMMIT_MSG:6}" > $1
-        return;
-    fi
+def branch_unconcerned?(branch)
+  UNCONCERNED_BRANCHES.include?(branch)
+end
 
-    if [[ $COMMIT_MSG != $BRANCH_NAME* ]] && [[ $BRANCH_NAME != "HEAD"* ]]
-    then
-        echo "jira"
-        echo "$BRANCH_NAME $(cat $1)" > $1
-    fi
-fi
+return if branch_unconcerned?(current_branch)
+
+if commit_msg.start_with?("fixup")
+  %x{ echo "fixup! #{current_branch} ${commit_msg[6..-1]}" > #{commit_file_msg} }
+elsif ! commit_msg.start_with?(current_branch) && ! current_branch.start_with?("HEAD")
+  %x{ echo "#{current_branch} #{commit_msg}" > #{commit_file_msg} }
+end
