@@ -12,7 +12,7 @@ end
 return if branch_unconcerned?(current_branch)
 
 if commit_msg.start_with?("fixup")
-  %x{ echo "fixup! #{current_branch} ${commit_msg[6..-1]}" > #{commit_file_msg} }
+  %x{ echo "fixup! #{current_branch} #{commit_msg[7..-1]}" > #{commit_file_msg} }
 elsif ! commit_msg.start_with?(current_branch) && ! current_branch.start_with?("HEAD")
   %x{ echo "#{current_branch} #{commit_msg}" > #{commit_file_msg} }
 end
