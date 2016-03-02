@@ -1,9 +1,13 @@
 #!/usr/bin/env ruby
 
-UNCONCERNED_BRANCHES = ["dev", "master"]
+UNCONCERNED_BRANCHES = ["develop", "master"]
 current_branch=%x{ git rev-parse --abbrev-ref HEAD }.strip
+branch_name, issue_id = current_branch.split("#")
+issue_id = "##{issue_id}"
 commit_file_msg = ARGV[0].strip
-commit_msg = %x{ cat #{commit_file_msg} }.strip
+
+commit_body = %x{ cat #{commit_file_msg} }.strip
+commit_header = "[#{issue_id}] - #{branch_name} -"
 
 def branch_unconcerned?(branch)
   UNCONCERNED_BRANCHES.include?(branch)
@@ -11,8 +15,9 @@ end
 
 return if branch_unconcerned?(current_branch)
 
-if commit_msg.start_with?("fixup")
-  %x{ echo "fixup! #{current_branch} #{commit_msg[7..-1]}" > #{commit_file_msg} }
-elsif ! commit_msg.start_with?(current_branch) && ! current_branch.start_with?("HEAD")
-  %x{ echo "#{current_branch} #{commit_msg}" > #{commit_file_msg} }
+if commit_body.start_with?("fixup")
+#  %x{ echo "fixup! #{current_branch} #{commit_body[7..-1]}" > #{commit_file_msg} }
+  %x{ echo "fixup! #{commit_header} #{commit_body[7..-1]}" > #{commit_file_msg} }
+elsif ! commit_body.start_with?(current_branch) && ! current_branch.start_with?("HEAD")
+  %x{ echo "#{commit_header} #{commit_body}" > #{commit_file_msg} }
 end
